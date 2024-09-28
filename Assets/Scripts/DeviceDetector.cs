@@ -4,27 +4,29 @@ using UnityEngine;
 
 public class DeviceDetector : MonoBehaviour
 {
+    public GameObject mobileControls;
+
     void Start()
     {
         if (Application.platform == RuntimePlatform.IPhonePlayer ||
             Application.platform == RuntimePlatform.Android)
         {
-            Debug.Log("Running on a mobile device.");
+            mobileControls.SetActive(true);
         }
         else if (Application.platform == RuntimePlatform.WebGLPlayer)
         {
             if (SystemInfo.deviceType == DeviceType.Handheld)
             {
-                Debug.Log("Running on a mobile browser.");
+                mobileControls.SetActive(true);
             }
             else if (SystemInfo.deviceType == DeviceType.Desktop)
             {
-                Debug.Log("Running on a desktop browser.");
+                mobileControls.SetActive(false);
             }
         }
         else
         {
-            Debug.Log("Running on a desktop or other device.");
+            mobileControls.SetActive(false);
         }
     }
 }
