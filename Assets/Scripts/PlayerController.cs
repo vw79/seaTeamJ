@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public GameObject walkSoundObject;
     public bool canMove = true;
     [SerializeField] private float playerSpeed = 2.0f;
 
@@ -43,6 +44,7 @@ public class PlayerController : MonoBehaviour
         {
             if (movementInput != Vector2.zero)
             {
+                walkSoundObject.SetActive(true);
                 Vector2 newPosition = rb.position + movementInput * playerSpeed * Time.fixedDeltaTime;
                 rb.MovePosition(newPosition);
 
@@ -75,6 +77,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                walkSoundObject.SetActive(false);
                 switch (playerLastFacePosition)
                 {
                     case "Front":
