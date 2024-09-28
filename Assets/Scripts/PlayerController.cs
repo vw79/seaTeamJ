@@ -8,11 +8,12 @@ public class PlayerController : MonoBehaviour
 {
     public bool canMove = true;
     [SerializeField] private float playerSpeed = 2.0f;
-    
+
     private InputAction moveAction;
     private Vector2 movementInput;
-    
+
     private Vector3 originalScale;
+    private Rigidbody2D rb;
 
     private void Awake()
     {
@@ -26,17 +27,20 @@ public class PlayerController : MonoBehaviour
         moveAction.Enable();
 
         originalScale = transform.localScale;
+
+        rb = GetComponent<Rigidbody2D>();
     }
-    
+
     private void FixedUpdate()
     {
         movementInput = moveAction.ReadValue<Vector2>();
 
-        if (canMove)
+        if (canMove && rb != null)
         {
             if (movementInput != Vector2.zero)
             {
-                transform.position += new Vector3(movementInput.x, movementInput.y, 0) * Time.fixedDeltaTime * playerSpeed;
+                Vector2 newPosition = rb.position + movementInput * playerSpeed * Time.fixedDeltaTime;
+                rb.MovePosition(newPosition);
 
                 if (movementInput.x < 0 && transform.localScale.x > 0)
                 {
@@ -49,7 +53,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    
+
     private void OnDestroy()
     {
         moveAction.Disable();
