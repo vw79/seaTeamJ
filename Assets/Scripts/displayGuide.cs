@@ -20,7 +20,7 @@ public class displayGuide : MonoBehaviour
         // Ensures that the guide is shown only if player is in range and conditions are met
         if (collision.gameObject.tag == "Player")
         {
-            if (objectTag == "Generator" && grabObject.isHolding)
+            if ((objectTag == "Generator" || objectTag == "Light" ) && (grabObject.isHolding))
             {
                 guide.SetActive(true);
             }

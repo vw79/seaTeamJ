@@ -12,6 +12,8 @@ public class GrabObejct : MonoBehaviour
     public bool isHolding = false;
     public bool inRange = false;
     public bool canDeposit = false;
+    public bool canDepositToSanity = false;
+    public float increaseSanityValue = 10f;
 
     private int depositTime = 2;
     private float holdTime = 0.0f;
@@ -23,6 +25,9 @@ public class GrabObejct : MonoBehaviour
     // Reference to door
     public GameObject door;
     public bool isDoorUnlocked;
+
+    // Reference to sanity bar
+    public SanityBar sanityBar;
 
     void Update()
     {
@@ -40,7 +45,19 @@ public class GrabObejct : MonoBehaviour
             PlayerController.canMove = false;
             if (holdTime >= depositTime)
             {
-                DepositObject();
+                DepositObject(); // Unlock the door
+                PlayerController.canMove = true;
+                objectToGrab.SetActive(false);
+                holdTime = 0.0f;
+            }
+        }
+        else if (canDepositToSanity && Input.GetKey(KeyCode.F))
+        {
+            holdTime += Time.deltaTime;
+            PlayerController.canMove = false;
+            if (holdTime >= depositTime)
+            {
+                DepositToSanityGenerator(); // Increase sanity bar
                 PlayerController.canMove = true;
                 objectToGrab.SetActive(false);
                 holdTime = 0.0f;
@@ -64,6 +81,11 @@ public class GrabObejct : MonoBehaviour
         {
             canDeposit = true;
         }
+
+        if (other.CompareTag("Light") && isHolding) // For increasing sanity
+        {
+            canDepositToSanity = true;
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -77,6 +99,11 @@ public class GrabObejct : MonoBehaviour
         if (other.CompareTag("Generator"))
         {
             canDeposit = false;
+        }
+
+        if (other.CompareTag("Light"))
+        {
+            canDepositToSanity = false;
         }
     }
 
@@ -95,7 +122,7 @@ public class GrabObejct : MonoBehaviour
     {
         canDeposit = false;
         isHolding = false;
-        Debug.Log("Deposit Complete");
+        Debug.Log("Deposit Complete for Unlocking");
 
         // Activate generator emission light
         if (depositCount < generatorLights.Count)
@@ -119,5 +146,20 @@ public class GrabObejct : MonoBehaviour
             isDoorUnlocked = true;
             Debug.Log("All generators activated. Door unlocked.");
         }
+    }
+
+    private void DepositToSanityGenerator()
+    {
+        // Increase sanity bar
+        if (sanityBar != null)
+        {
+            sanityBar.IncreaseSanity(increaseSanityValue); 
+        }
+
+        canDepositToSanity = false;
+        isHolding = false;
+        Debug.Log("Deposit Complete for Increasing Sanity");
+
+        
     }
 }

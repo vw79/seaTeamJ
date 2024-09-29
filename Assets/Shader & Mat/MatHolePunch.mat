@@ -33,6 +33,6 @@ Material:
     - _HoleRadius: 220
     - _OverlayAlpha: 0.8
     m_Colors:
-    - _HoleCenter: {r: -18.647099, g: 15.06138, b: 0, a: 0}
+    - _HoleCenter: {r: 0.14774445, g: 19.13332, b: 0, a: 0}
     - _OverlayColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

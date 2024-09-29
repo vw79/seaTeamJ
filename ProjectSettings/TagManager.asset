@@ -8,6 +8,7 @@ TagManager:
   - Generator
   - Enemy
   - Door
+  - Light
   layers:
   - Default
   - TransparentFX
