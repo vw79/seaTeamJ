@@ -108,9 +108,10 @@ public class PlayerController : MonoBehaviour
         moveAction.Dispose();
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        Debug.Log("Player collided with " + other.gameObject.name);
+        if (other.gameObject.CompareTag("Enemy"))
         {
             playerUI.SetActive(false);
             gameObject.SetActive(false);
