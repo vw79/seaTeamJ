@@ -29,6 +29,9 @@ public class GrabObejct : MonoBehaviour
     // Reference to sanity bar
     public SanityBar sanityBar;
 
+    // Reference to win menu
+    public GameObject winMenu;
+
     void Update()
     {
         if (inRange && Input.GetKeyDown(KeyCode.F))
@@ -85,6 +88,11 @@ public class GrabObejct : MonoBehaviour
         if (other.CompareTag("Light") && isHolding) // For increasing sanity
         {
             canDepositToSanity = true;
+        }
+
+        if (other.CompareTag("Door") && isDoorUnlocked)
+        {
+            ShowWinMenu();
         }
     }
 
@@ -153,13 +161,20 @@ public class GrabObejct : MonoBehaviour
         // Increase sanity bar
         if (sanityBar != null)
         {
-            sanityBar.IncreaseSanity(increaseSanityValue); 
+            sanityBar.IncreaseSanity(increaseSanityValue);
         }
 
         canDepositToSanity = false;
         isHolding = false;
         Debug.Log("Deposit Complete for Increasing Sanity");
+    }
 
-        
+    private void ShowWinMenu()
+    {
+        if (winMenu != null)
+        {
+            winMenu.SetActive(true);
+            Debug.Log("Win Menu enabled.");
+        }
     }
 }
