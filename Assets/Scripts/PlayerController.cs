@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public GameObject playerUI;
+    public GameObject gameOverUI;
     public GameObject walkSoundObject;
     public bool canMove = true;
     [SerializeField] private float playerSpeed = 2.0f;
@@ -18,6 +20,12 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
 
     private string playerLastFacePosition = "Front";
+
+    private void Start()
+    {
+        gameOverUI.SetActive(false);
+        playerUI.SetActive(true);
+    }
 
     private void Awake()
     {
@@ -98,5 +106,15 @@ public class PlayerController : MonoBehaviour
     {
         moveAction.Disable();
         moveAction.Dispose();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            playerUI.SetActive(false);
+            gameObject.SetActive(false);
+            gameOverUI.SetActive(true);
+        }
     }
 }
