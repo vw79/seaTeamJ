@@ -16,10 +16,16 @@ public class EnemyAI : MonoBehaviour
     public float chaseSpeed = 4f;
 
     private Vector3 patrolTarget;
-    private bool playerDetected;
+    private bool playerInDetectionZone = false;
+    private bool playerInPOVZone = false;
 
-    public CircleCollider2D detectionCollider;
-    public BoxCollider2D povCollider;
+    private Animator anim;
+    private string enemyLastFacePosition = "Front";
+
+    private void Awake()
+    {
+        anim = GetComponent<Animator>();
+    }
 
     private void FixedUpdate()
     {
@@ -39,8 +45,12 @@ public class EnemyAI : MonoBehaviour
 
     private void Idle()
     {
-        // Logic for idle state, can include waiting for a few seconds
-        if (Random.value < 0.01f)
+        if (!playerInDetectionZone)
+        {
+            anim.Play(GetIdleAnimation());
+        }
+
+        if (Random.value < 0.01f && !playerInDetectionZone)
         {
             SetRandomPatrolTarget();
             currentState = EnemyState.Patrol;
@@ -49,7 +59,7 @@ public class EnemyAI : MonoBehaviour
 
     private void Patrol()
     {
-        MoveTowards(patrolTarget, patrolSpeed);
+        MoveTowards(patrolTarget, patrolSpeed, false);
 
         if (Vector3.Distance(transform.position, patrolTarget) < 0.1f)
         {
@@ -61,13 +71,12 @@ public class EnemyAI : MonoBehaviour
     {
         if (player != null)
         {
-            MoveTowards(player.position, chaseSpeed);
+            MoveTowards(player.position, chaseSpeed, true);
         }
     }
 
     private void SetRandomPatrolTarget()
     {
-        // Get random position within tilemap bounds
         BoundsInt bounds = floorTilemap.cellBounds;
 
         Vector3Int randomCellPosition = new Vector3Int(
@@ -81,41 +90,83 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    private void MoveTowards(Vector3 target, float speed)
+    private void MoveTowards(Vector3 target, float speed, bool isChasing)
     {
         Vector3 direction = (target - transform.position).normalized;
-        transform.position += direction * speed * Time.deltaTime;
+        Vector3 newPosition = transform.position + direction * speed * Time.deltaTime;
+
+        UpdateAnimationBasedOnMovement(direction, isChasing);
+        transform.position = newPosition;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void UpdateAnimationBasedOnMovement(Vector3 direction, bool isChasing)
     {
-        Debug.Log("Something entered the trigger");
-        if (other.CompareTag("Player"))
+        if (direction != Vector3.zero)
         {
-            Debug.Log("Player detected in trigger");
-            if (other == povCollider)
+            if (direction.x < 0)
             {
-                Debug.Log("Player in POV");
-                currentState = EnemyState.Chase;
-                playerDetected = true;
+                enemyLastFacePosition = "Left";
+                anim.Play(isChasing ? "enemyRunLeft" : "enemyWalkLeft");
             }
-            else if (other == detectionCollider && !playerDetected)
+            else if (direction.x > 0)
             {
-                Debug.Log("Player in detection range");
-                playerDetected = true;
+                enemyLastFacePosition = "Right";
+                anim.Play(isChasing ? "enemyRunRight" : "enemyWalkRight");
             }
+            else if (direction.y > 0)
+            {
+                enemyLastFacePosition = "Back";
+                anim.Play(isChasing ? "enemyRunBack" : "enemyWalkBack");
+            }
+            else if (direction.y < 0)
+            {
+                enemyLastFacePosition = "Front";
+                anim.Play(isChasing ? "enemyRunFront" : "enemyWalkFront");
+            }
+        }
+        else
+        {
+            anim.Play(GetIdleAnimation());
         }
     }
 
-    private void OnTriggerExit2D(Collider2D other)
+    private string GetIdleAnimation()
     {
-        if (other == player.GetComponent<Collider2D>())
+        switch (enemyLastFacePosition)
         {
-            if (other == povCollider)
-            {
-                currentState = EnemyState.Patrol;
-                playerDetected = false;
-            }
+            case "Back":
+                return "enemyIdleBack";
+            case "Left":
+                return "enemyIdleLeft";
+            case "Right":
+                return "enemyIdleRight";
+            default:
+                return "enemyIdleFront";
+        }
+    }
+
+    public void OnPlayerEnterDetectionZone()
+    {
+        playerInDetectionZone = true;
+    }
+
+    public void OnPlayerExitDetectionZone()
+    {
+        playerInDetectionZone = false;
+    }
+
+    public void OnPlayerEnterPOVZone()
+    {
+        currentState = EnemyState.Chase;
+        playerInPOVZone = true;
+    }
+
+    public void OnPlayerExitPOVZone()
+    {
+        if (playerInPOVZone)
+        {
+            currentState = playerInDetectionZone ? EnemyState.Patrol : EnemyState.Idle;
+            playerInPOVZone = false;
         }
     }
 }
