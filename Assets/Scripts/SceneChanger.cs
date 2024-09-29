@@ -7,7 +7,7 @@ public class SceneChanger : MonoBehaviour
 {
     public void ToGamePlay()
     {
-        SceneManager.LoadScene("LevelDesign");
+        SceneManager.LoadScene("InGameLevel");
     }
 
     public void ToExit()
