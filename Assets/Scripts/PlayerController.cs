@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public GameObject JumpSacreSound;
+    public GameObject jumpScareUI;
     public GameObject playerUI;
     public GameObject gameOverUI;
     public GameObject walkSoundObject;
@@ -18,11 +20,14 @@ public class PlayerController : MonoBehaviour
     private Vector3 originalScale;
     private Rigidbody2D rb;
     private Animator anim;
+    private int scareTime = 2;
+    private int count = 0;
 
     private string playerLastFacePosition = "Front";
 
     private void Start()
     {
+        jumpScareUI.SetActive(false);
         gameOverUI.SetActive(false);
         playerUI.SetActive(true);
     }
@@ -114,8 +119,16 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Enemy"))
         {
             playerUI.SetActive(false);
-            gameObject.SetActive(false);
-            gameOverUI.SetActive(true);
+            jumpScareUI.SetActive(true);
+            JumpSacreSound.SetActive(true);
+            StartCoroutine(DisableIMG());
         }
+    }
+
+    IEnumerator DisableIMG()
+    {
+        yield return new WaitForSeconds(2);
+        jumpScareUI.SetActive(false);
+        gameOverUI.SetActive(true);
     }
 }
