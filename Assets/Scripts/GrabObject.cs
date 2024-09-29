@@ -5,18 +5,25 @@ using UnityEngine;
 public class GrabObejct : MonoBehaviour
 {
     public PlayerController PlayerController;
-    
+
     public Transform holdPoint;
     public GameObject objectToGrab;
-    
+
     public bool isHolding = false;
     public bool inRange = false;
     public bool canDeposit = false;
 
     private int depositTime = 2;
     private float holdTime = 0.0f;
-    
-    // Update is called once per frame
+
+    // Generator light indicators
+    public List<SpriteRenderer> generatorLights; // Updated to use SpriteRenderer for sprites
+    private int depositCount = 0;
+
+    // Reference to door
+    public GameObject door;
+    public bool isDoorUnlocked;
+
     void Update()
     {
         if (inRange && Input.GetKeyDown(KeyCode.F))
@@ -44,7 +51,7 @@ public class GrabObejct : MonoBehaviour
             PlayerController.canMove = true;
         }
     }
-    
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Resource"))
@@ -58,7 +65,7 @@ public class GrabObejct : MonoBehaviour
             canDeposit = true;
         }
     }
-    
+
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("Resource"))
@@ -72,7 +79,7 @@ public class GrabObejct : MonoBehaviour
             canDeposit = false;
         }
     }
-    
+
     private void GrabObject()
     {
         if (objectToGrab != null)
@@ -89,5 +96,28 @@ public class GrabObejct : MonoBehaviour
         canDeposit = false;
         isHolding = false;
         Debug.Log("Deposit Complete");
+
+        // Activate generator emission light
+        if (depositCount < generatorLights.Count)
+        {
+            // Convert HSV (Hue 120 for green, Saturation 1, Value 1) to RGB
+            Color emissionColor = Color.HSVToRGB(120f / 360f, 1f, 1f);
+
+            // Multiply by intensity to set the emission color
+            emissionColor *= 3.80065f;
+
+            // Set the emission color for the material
+            Material material = generatorLights[depositCount].material;
+            material.SetColor("_Color", emissionColor);
+
+            depositCount++;
+        }
+
+        // Unlock door after all generators are activated
+        if (depositCount == generatorLights.Count)
+        {
+            isDoorUnlocked = true;
+            Debug.Log("All generators activated. Door unlocked.");
+        }
     }
 }
