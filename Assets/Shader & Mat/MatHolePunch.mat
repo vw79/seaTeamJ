@@ -30,9 +30,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _HoleFeather: 300
-    - _HoleRadius: 157.7
+    - _HoleRadius: 220
     - _OverlayAlpha: 0.8
     m_Colors:
-    - _HoleCenter: {r: -0.29334387, g: 0.1875019, b: 0, a: 0}
+    - _HoleCenter: {r: -2.0972137, g: 2.6539536, b: 0, a: 0}
     - _OverlayColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
