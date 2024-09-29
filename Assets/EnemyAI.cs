@@ -6,6 +6,10 @@ using UnityEngine.Tilemaps;
 
 public class EnemyAI : MonoBehaviour
 {
+    public GameObject heartBeat;
+    public GameObject idleSound;
+    public GameObject chaseSound;
+    public GameObject walkSound;
     public enum EnemyState { Idle, Patrol, Chase }
     public EnemyState currentState = EnemyState.Idle;
 
@@ -48,6 +52,8 @@ public class EnemyAI : MonoBehaviour
         if (!playerInDetectionZone)
         {
             anim.Play(GetIdleAnimation());
+            idleSound.SetActive(true);
+            chaseSound.SetActive(false);
         }
 
         if (Random.value < 0.01f && !playerInDetectionZone)
@@ -60,7 +66,7 @@ public class EnemyAI : MonoBehaviour
     private void Patrol()
     {
         MoveTowards(patrolTarget, patrolSpeed, false);
-
+        heartBeat.SetActive(true);
         if (Vector3.Distance(transform.position, patrolTarget) < 0.1f)
         {
             currentState = EnemyState.Idle;
@@ -72,6 +78,9 @@ public class EnemyAI : MonoBehaviour
         if (player != null)
         {
             MoveTowards(player.position, chaseSpeed, true);
+            idleSound.SetActive(false);
+            chaseSound.SetActive(true);
+            heartBeat.SetActive(false);
         }
     }
 
