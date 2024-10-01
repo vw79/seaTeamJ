@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GrabObejct : MonoBehaviour
 {
@@ -32,6 +33,36 @@ public class GrabObejct : MonoBehaviour
     // Reference to win menu
     public GameObject winMenu;
 
+    // References for the holding bar UI
+    public RectTransform holdingBarFill; // Using RectTransform for resizing the fill bar
+    public Image holdingBarBackground; // Reference to the background bar
+    private float initialWidth;
+
+    // Reference for deposit indication UI images
+    public List<Image> indicatorCircles; // Add your four indicator circles here in the inspector
+
+    // Reference to HolePunchController
+    public HolePunchController holePunchController;
+
+    private float originalHoleRadius;
+    private float originalHoleFeather;
+    private float originalOverlayAlpha;
+
+    void Start()
+    {
+        initialWidth = holdingBarFill.sizeDelta.x;
+        holdingBarFill.sizeDelta = new Vector2(0, holdingBarFill.sizeDelta.y); // Start with empty bar
+        holdingBarBackground.gameObject.SetActive(false); // Hide the background at the start
+
+        // Store the original values of HolePunchController
+        if (holePunchController != null)
+        {
+            originalHoleRadius = holePunchController.holeRadius;
+            originalHoleFeather = holePunchController.holeFeather;
+            originalOverlayAlpha = holePunchController.overlayAlpha;
+        }
+    }
+
     void Update()
     {
         if (inRange && Input.GetKeyDown(KeyCode.F))
@@ -42,33 +73,44 @@ public class GrabObejct : MonoBehaviour
             }
         }
 
-        if (canDeposit && Input.GetKey(KeyCode.F))
+        if ((canDeposit || canDepositToSanity) && Input.GetKey(KeyCode.F))
         {
             holdTime += Time.deltaTime;
             PlayerController.canMove = false;
+
+            // Show and update the holding bar and its background
+            holdingBarBackground.gameObject.SetActive(true);
+            holdingBarFill.gameObject.SetActive(true);
+            float newWidth = Mathf.Lerp(0, initialWidth, holdTime / depositTime);
+            holdingBarFill.sizeDelta = new Vector2(newWidth, holdingBarFill.sizeDelta.y);
+
             if (holdTime >= depositTime)
             {
-                DepositObject(); // Unlock the door
+                if (canDeposit)
+                {
+                    DepositObject(); // Unlock the door
+                }
+                else if (canDepositToSanity)
+                {
+                    DepositToSanityGenerator(); // Increase sanity bar
+                    StartCoroutine(ChangeHolePunchValues());
+                }
+
                 PlayerController.canMove = true;
                 objectToGrab.SetActive(false);
                 holdTime = 0.0f;
-            }
-        }
-        else if (canDepositToSanity && Input.GetKey(KeyCode.F))
-        {
-            holdTime += Time.deltaTime;
-            PlayerController.canMove = false;
-            if (holdTime >= depositTime)
-            {
-                DepositToSanityGenerator(); // Increase sanity bar
-                PlayerController.canMove = true;
-                objectToGrab.SetActive(false);
-                holdTime = 0.0f;
+                holdingBarFill.sizeDelta = new Vector2(0, holdingBarFill.sizeDelta.y); // Reset the bar
+                holdingBarFill.gameObject.SetActive(false);
+                holdingBarBackground.gameObject.SetActive(false);
             }
         }
         else
         {
             PlayerController.canMove = true;
+            holdTime = 0.0f; // Reset hold time if key is released
+            holdingBarFill.sizeDelta = new Vector2(0, holdingBarFill.sizeDelta.y);
+            holdingBarFill.gameObject.SetActive(false);
+            holdingBarBackground.gameObject.SetActive(false);
         }
     }
 
@@ -148,6 +190,12 @@ public class GrabObejct : MonoBehaviour
             depositCount++;
         }
 
+        // Update the indicator circles UI
+        if (depositCount - 1 < indicatorCircles.Count)
+        {
+            indicatorCircles[depositCount - 1].color = Color.green; // Change the color to green
+        }
+
         // Unlock door after all generators are activated
         if (depositCount == generatorLights.Count)
         {
@@ -175,6 +223,24 @@ public class GrabObejct : MonoBehaviour
         {
             winMenu.SetActive(true);
             Debug.Log("Win Menu enabled.");
+        }
+    }
+
+    private IEnumerator ChangeHolePunchValues()
+    {
+        if (holePunchController != null)
+        {
+            // Change the HolePunchController values
+            holePunchController.holeRadius = 220f;
+            holePunchController.holeFeather = 300f;
+            holePunchController.overlayAlpha = 0.75f;
+
+            yield return new WaitForSeconds(10f);
+
+            // Revert back to the original values
+            holePunchController.holeRadius = originalHoleRadius;
+            holePunchController.holeFeather = originalHoleFeather;
+            holePunchController.overlayAlpha = originalOverlayAlpha;
         }
     }
 }

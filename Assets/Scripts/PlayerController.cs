@@ -115,7 +115,6 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Player collided with " + other.gameObject.name);
         if (other.gameObject.CompareTag("Enemy"))
         {
             playerUI.SetActive(false);

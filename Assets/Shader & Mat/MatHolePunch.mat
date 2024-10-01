@@ -29,10 +29,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _HoleFeather: 300
-    - _HoleRadius: 220
-    - _OverlayAlpha: 0.8
+    - _HoleFeather: 280
+    - _HoleRadius: 110
+    - _OverlayAlpha: 0.95
     m_Colors:
-    - _HoleCenter: {r: -0.10528786, g: 23.37769, b: 0, a: 0}
+    - _HoleCenter: {r: 11.328307, g: 14.884921, b: 0, a: 0}
     - _OverlayColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
