@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class GrabObejct : MonoBehaviour
 {
@@ -48,6 +49,14 @@ public class GrabObejct : MonoBehaviour
     private float originalHoleFeather;
     private float originalOverlayAlpha;
 
+    // Player Input Actions reference
+    private PlayerActionsExample playerInput;
+
+    void Awake()
+    {
+        playerInput = new PlayerActionsExample();
+    }
+
     void Start()
     {
         initialWidth = holdingBarFill.sizeDelta.x;
@@ -65,15 +74,26 @@ public class GrabObejct : MonoBehaviour
 
     void Update()
     {
-        if (inRange && Input.GetKeyDown(KeyCode.F))
+        // Handling picking up the object (using F key for "Grab" action)
+        if (inRange && playerInput.Player.Grab.triggered)
         {
             if (!isHolding)
             {
-                GrabObject();
+                GrabObjectMethod();
             }
         }
 
-        if ((canDeposit || canDepositToSanity) && Input.GetKey(KeyCode.F))
+        // Handling picking up with the Jump button as well
+        if (inRange && playerInput.Player.Jump.triggered)
+        {
+            if (!isHolding)
+            {
+                GrabObjectMethod();
+            }
+        }
+
+        // Handling deposit logic when holding the button (Jump or Grab)
+        if ((canDeposit || canDepositToSanity) && isHolding && (playerInput.Player.Jump.IsPressed() || playerInput.Player.Grab.IsPressed()))
         {
             holdTime += Time.deltaTime;
             PlayerController.canMove = false;
@@ -96,6 +116,7 @@ public class GrabObejct : MonoBehaviour
                     StartCoroutine(ChangeHolePunchValues());
                 }
 
+                // Reset hold-related variables after successful deposit
                 PlayerController.canMove = true;
                 objectToGrab.SetActive(false);
                 holdTime = 0.0f;
@@ -104,10 +125,11 @@ public class GrabObejct : MonoBehaviour
                 holdingBarBackground.gameObject.SetActive(false);
             }
         }
-        else
+        else if (isHolding && !(canDeposit || canDepositToSanity))
         {
+            // Reset if not in a deposit area or if the button is released
             PlayerController.canMove = true;
-            holdTime = 0.0f; // Reset hold time if key is released
+            holdTime = 0.0f; // Reset hold time if key is released or if not in the correct area
             holdingBarFill.sizeDelta = new Vector2(0, holdingBarFill.sizeDelta.y);
             holdingBarFill.gameObject.SetActive(false);
             holdingBarBackground.gameObject.SetActive(false);
@@ -157,7 +179,7 @@ public class GrabObejct : MonoBehaviour
         }
     }
 
-    private void GrabObject()
+    private void GrabObjectMethod()
     {
         if (objectToGrab != null)
         {
@@ -242,5 +264,15 @@ public class GrabObejct : MonoBehaviour
             holePunchController.holeFeather = originalHoleFeather;
             holePunchController.overlayAlpha = originalOverlayAlpha;
         }
+    }
+
+    private void OnEnable()
+    {
+        playerInput.Enable();
+    }
+
+    private void OnDisable()
+    {
+        playerInput.Disable();
     }
 }
