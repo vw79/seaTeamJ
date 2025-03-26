@@ -38,6 +38,6 @@ A tense **resource management horror game** built in **Unity** for a [**SEA Game
   <a href="https://vinw79.itch.io/seateamj">
     <img src="https://img.itch.zone/aW1nLzE3OTY3NDI0LnBuZw==/315x250%23c/OuZphg.png" width="300" alt="Play VAMP on Itch.io"/>
     <br>
-    <strong>🕹️ Click here to play VAMP on Itch.io</strong>
+    <strong>🕹️ Click here to play Vamp's Neverland on Itch.io</strong>
   </a>
 </p>
